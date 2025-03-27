@@ -1,44 +1,30 @@
 package com.bluchink.ChatBot.service;
-
-import com.bluchink.ChatBot.dto.GeminiRequestDto;
-import com.bluchink.ChatBot.dto.GeminiResponseDto;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
+import com.bluchink.ChatBot.dto.ChatRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class ChatService {
 
-    @Value("${gemini.api.key}")
-    private String apiKey;
+    private final WebClient webClient;
 
-    private final RestTemplate restTemplate;
-
-    @Autowired
-    public ChatService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public ChatService(WebClient webClient) {
+        this.webClient = webClient;
     }
-    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=";
 
-    public String generateResponse(String prompt) {
-        String url = GEMINI_API_URL + apiKey;
+    public String sendMessage(String query, String user) {
+        Map<String, Object> inputs = new HashMap<>();
+        ChatRequest request = new ChatRequest(inputs, query, "blocking", "", user, Collections.emptyList());
 
-        GeminiRequestDto request = new GeminiRequestDto(
-                Collections.singletonList(new GeminiRequestDto.Content(
-                        Collections.singletonList(new GeminiRequestDto.Part(prompt))
-                ))
-        );
-
-        GeminiResponseDto response = restTemplate.postForObject(url, request, GeminiResponseDto.class);
-
-        if (response != null && response.getCandidates() != null && !response.getCandidates().isEmpty()) {
-            return response.getCandidates().get(0).getContent().getParts().get(0).getText();
-        }
-
-        return "No response from Gemini API.";
+        return webClient.post()
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block(Duration.ofSeconds(10));
     }
 }
