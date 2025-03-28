@@ -10,7 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://192.168.45.94:3000")
+@CrossOrigin(origins = "*")
 public class ChatController {
 
     @Autowired
