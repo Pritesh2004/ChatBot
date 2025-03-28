@@ -10,18 +10,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebConfig {
 
-    @Value("${dify.api.url}")
-    private String difyApiUrl;
-
-    @Value("${dify.api.key}")
-    private String apiKey;
-
     @Bean
-    public WebClient webClient() {
-        return WebClient.builder()
-                .baseUrl(difyApiUrl)
-                .defaultHeader("Authorization", "Bearer " + apiKey)
-                .defaultHeader("Content-Type", "application/json")
-                .build();
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
     }
 }
