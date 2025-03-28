@@ -3,6 +3,6 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 FROM openjdk:17.0.1-jdk-slim
-COPY --from=build /target/HealthCare-0.0.1-SNAPSHOT.jar HealthCare.jar
+COPY --from=build /target/ChatBot-0.0.1-SNAPSHOT.jar ChatBot.jar
 EXPOSE 8080
 ENTRYPOINT [ "java","-jar","ChatBot.jar" ]
