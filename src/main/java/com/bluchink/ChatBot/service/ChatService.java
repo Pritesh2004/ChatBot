@@ -24,14 +24,13 @@ public class ChatService {
     }
 
     public Mono<String> getChatbotResponse(String userMessage) {
-        // Prepare request body
         Map<String, Object> chatbotRequest = new HashMap<>();
-        chatbotRequest.put("inputs", new HashMap<>()); // Empty inputs as per example
+        chatbotRequest.put("inputs", new HashMap<>());
         chatbotRequest.put("query", userMessage);
         chatbotRequest.put("response_mode", "blocking");
         chatbotRequest.put("conversation_id", "");
         chatbotRequest.put("user", "abc-123");
-        chatbotRequest.put("files", new Object[]{}); // Empty array if no files
+        chatbotRequest.put("files", new Object[]{});
 
         return webClient.post()
                 .uri("/v1/chat-messages")
@@ -39,7 +38,7 @@ public class ChatService {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(chatbotRequest)
                 .retrieve()
-                .bodyToMono(Map.class)  // Convert response to Map
+                .bodyToMono(Map.class)
                 .map(response -> (String) response.get("answer"));
     }
 }
