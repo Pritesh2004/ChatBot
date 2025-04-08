@@ -1,12 +1,17 @@
 package com.bluchink.ChatBot.controller;
 
+import com.bluchink.ChatBot.dto.ChatRequestDto;
+import com.bluchink.ChatBot.dto.ChatResponse;
 import com.bluchink.ChatBot.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+import jakarta.servlet.http.HttpSession;
 
-import java.util.Map;
+import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api")
@@ -16,11 +21,10 @@ public class ChatController {
     @Autowired
     private ChatService chatService;
 
-    @PostMapping("/chat")
-    public Mono<ResponseEntity<Map<String, String>>> chat(@RequestBody Map<String, String> request) {
-        String userMessage = request.get("message");
-
-        return chatService.getChatbotResponse(userMessage)
-                .map(response -> ResponseEntity.ok(Map.of("response", response)));
+    @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> chat(@RequestBody ChatRequestDto requestDto) {
+        Flux<ChatResponse> chatResponse = chatService.streamChatbotResponse(requestDto.getQuery());
+        return chatResponse.map(ChatResponse::getAnswer);
     }
+
 }
